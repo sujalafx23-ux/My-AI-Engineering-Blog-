@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Decoded — From Zero to Builder</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Sora:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060A0F;
+      --bg2: #0C1219;
+      --bg3: #111820;
+      --bg4: #161E28;
+      --border: #1E2B38;
+      --border2: rgba(30, 43, 56, 0.5);
+      --text: #DCE8F0;
+      --text-mid: #7A90A4;
+      --text-dim: #3A4E60;
+      --green: #22C55E;
+      --green-dim: rgba(34, 197, 94, 0.12);
+      --blue: #38BDF8;
+      --blue-dim: rgba(56, 189, 248, 0.12);
+      --purple: #A78BFA;
+      --purple-dim: rgba(167, 139, 250, 0.12);
+      --orange: #FB923C;
+      --orange-dim: rgba(251, 146, 60, 0.12);
+      --yellow: #FBBF24;
+      --yellow-dim: rgba(251, 191, 36, 0.1);
+      --red: #F87171;
+      --red-dim: rgba(248, 113, 113, 0.1);
+      --cyan: #22D3EE;
+      --cyan-dim: rgba(34, 211, 238, 0.1);
+      --pink: #F472B6;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px
+    }
+
+    /* ── PROGRESS BAR ── */
+    #prog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--border);
+      z-index: 200
+    }
+
+    #prog-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+      transition: width .1s
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 2px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(6, 10, 15, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 2rem;
+    }
+
+    .nav-logo {
+      font-family: 'Fira Code', monospace;
+      font-size: .82rem;
+      color: var(--green);
+      text-decoration: none;
+      margin-right: 2rem;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .nav-logo::before {
+      content: '◈';
+      font-size: .7rem
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: .1rem;
+      overflow-x: auto;
+      flex: 1;
+      scrollbar-width: none
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none
+    }
+
+    .nav-tab {
+      font-family: 'Fira Code', monospace;
+      font-size: .62rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: .3rem .7rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: all .15s;
+      border: 1px solid transparent;
+      letter-spacing: .05em;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-mid);
+      background: var(--bg3)
+    }
+
+    .nav-tab.active {
+      color: var(--green);
+      border-color: var(--border)
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+      padding-top: 52px
+    }
+
+    @media(max-width:860px) {
+      .page {
+        grid-template-columns: 1fr
+      }
+
+      .sidebar {
+        display: none
+      }
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      scrollbar-width: thin;
+      background: var(--bg);
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 3px
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border)
+    }
+
+    .sb-group {
+      margin-bottom: 1.8rem
+    }
+
+    .sb-head {
+      font-family: 'Fira Code', monospace;
+      font-size: .55rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 0 1.2rem;
+      margin-bottom: .4rem;
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .38rem 1.2rem;
+      font-size: .75rem;
+      color: var(--text-mid);
+      text-decoration: none;
+      transition: all .15s;
+      border-left: 2px solid transparent;
+    }
+
+    .sb-item:hover {
+      color: var(--text);
+      background: var(--bg2)
+    }
+
+    .sb-item.on {
+      color: var(--green);
+      border-left-color: var(--green);
+      background: var(--green-dim)
+    }
+
+    .sb-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    /* ── MAIN ── */
+    main {
+      padding: 3rem 3.5rem 8rem;
+      max-width: 850px
+    }
+
+    @media(max-width:860px) {
+      main {
+        padding: 2rem 1.2rem 5rem
+      }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 3.5rem 0 3rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4rem
+    }
+
+    .hero-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: .65rem;
+      color: var(--green);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      letter-spacing: .1em;
+    }
+
+    .hero-tag::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--green)
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -.03em;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--green)
+    }
+
+    .hero p {
+      font-size: .95rem;
+      color: var(--text-mid);
+      max-width: 580px;
+      line-height: 1.85;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem
+    }
+
+    .chip {
+      font-family: 'Fira Code', monospace;
+      font-size: .6rem;
+      border: 1px solid var(--border);
+      padding: .25rem .7rem;
+      border-radius: 4px;
+      color: var(--text-dim);
+      letter-spacing: .05em;
+    }
+
+    /* ── CHAPTER ── */
+    .chapter {
+      margin-bottom: 5rem;
+      scroll-margin-top: 72px
+    }
+
+    .ch-header {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: 2rem
+    }
+
+    .ch-num {
+      font-family: 'Fira Code', monospace;
+      font-size: .58rem;
+      color: var(--text-dim);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: .18rem .5rem;
+      border-radius: 3px;
+    }
+
+    .ch-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -.02em
+    }
+
+    .ch-source {
+      font-family: 'Fira Code', monospace;
+      font-size: .55rem;
+      color: var(--text-dim);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    p.body {
+      font-size: .88rem;
+      color: var(--text-mid);
+      line-height: 1.9;
+      margin-bottom: 1rem;
+      font-weight: 300
+    }
+
+    p.body strong {
+      color: var(--text);
+      font-weight: 500
+    }
+
+    h3.sub {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 2.2rem 0 .8rem;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    h3.sub::before {
+      content: '##';
+      font-family: 'Fira Code', monospace;
+      font-size: .65rem;
+      color: var(--text-dim);
+    }
+
+    /* ── CALLOUTS ── */
+    .callout {
+      border-left: 2px solid;
+      padding: .9rem 1.2rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1.2rem 0;
+      font-size: .82rem;
+      line-height: 1.75;
+    }
+
+    .callout-label {
+      font-family: 'Fira Code', monospace;
+      font-size: .6rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      margin-bottom: .35rem;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+
+    .tip {
+      border-color: var(--green);
+      background: var(--green-dim)
+    }
+
+    .tip .callout-label {
+      color: var(--green)
+    }
+
+    .info {
+      border-color: var(--blue);
+      background: var(--blue-dim)
+    }
+
+    .info .callout-label {
+      color: var(--blue)
+    }
+
+    .warn {
+      border-color: var(--orange);
+      background: var(--orange-dim)
+    }
+
+    .warn .callout-label {
+      color: var(--orange)
+    }
+
+    .insight {
+      border-color: var(--purple);
+      background: var(--purple-dim)
+    }
+
+    .insight .callout-label {
+      color: var(--purple)
+    }
+
+    .source {
+      border-color: var(--yellow);
+      background: var(--yellow-dim)
+    }
+
+    .source .callout-label {
+      color: var(--yellow)
+    }
+
+    /* ── CODE ── */
+    .code-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1.2rem 0
+    }
+
+    .code-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+    }
+
+    .code-dots {
+      display: flex;
+      gap: 5px
+    }
+
+    .code-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%
+    }
+
+    .code-dots span:nth-child(1) {
+      background: #FF5F57
+    }
+
+    .code-dots span:nth-child(2) {
+      background: #FFBD2E
+    }
+
+    .code-dots span:nth-child(3) {
+      background: #28CA41
+    }
+
+    .code-lang {
+      font-family: 'Fira Code', monospace;
+      font-size: .6rem;
+      color: var(--text-dim);
+      letter-spacing: .1em;
+      text-transform: uppercase
+    }
+
+    pre {
+      padding: 1.2rem 1.5rem;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: .78rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+
+    .kw {
+      color: #F87171
+    }
+
+    .str {
+      color: #4ADE80
+    }
+
+    .cm {
+      color: var(--text-dim);
+      font-style: italic
+    }
+
+    .fn {
+      color: #A78BFA
+    }
+
+    .num {
+      color: #38BDF8
+    }
+
+    .key {
+      color: #FB923C
+    }
+
+    .attr {
+      color: #FBBF24
+    }
+
+    .val {
+      color: #4ADE80
+    }
+
+    .type {
+      color: #38BDF8
+    }
+
+    /* ── DIAGRAM ── */
+    .diagram {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.2rem 0;
+      overflow-x: auto;
+    }
+
+    .diag-title {
+      font-family: 'Fira Code', monospace;
+      font-size: .58rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1.2rem;
+    }
+
+    /* BOXES for diagrams */
+    .box {
+      padding: .5rem .9rem;
+      border-radius: 5px;
+      border: 1px solid;
+      font-family: 'Fira Code', monospace;
+      font-size: .68rem;
+      text-align: center;
+      white-space: nowrap;
+      min-width: 90px;
+    }
+
+    .box-u {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-dim)
+    }
+
+    .box-m {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: var(--purple-dim)
+    }
+
+    .box-s {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-dim)
+    }
+
+    .box-d {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-dim)
+    }
+
+    .box-t {
+      border-color: var(--yellow);
+      color: var(--yellow);
+      background: var(--yellow-dim)
+    }
+
+    .box-o {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-dim)
+    }
+
+    .box-c {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: var(--cyan-dim)
+    }
+
+    .arr {
+      font-size: .9rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: .7rem
+    }
+
+    .arr-line {
+      font-size: 1.1rem
+    }
+
+    .arr-lbl {
+      font-family: 'Fira Code', monospace;
+      font-size: .52rem;
+      color: var(--text-dim)
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      flex-wrap: wrap
+    }
+
+    .flow-col {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem
+    }
+
+    /* ── LAYERS ── */
+    .layers {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin: 1rem 0
+    }
+
+    .layer {
+      padding: .6rem 1rem;
+      border-radius: 5px;
+      border: 1px solid;
+      font-family: 'Fira Code', monospace;
+      font-size: .7rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .layer-l {
+      font-weight: 500
+    }
+
+    .layer-r {
+      font-size: .6rem;
+      opacity: .65
+    }
+
+    /* ── CARDS ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1.2rem 0
+    }
+
+    .card {
+      background: var(--bg2);
+      padding: 1.3rem;
+      transition: background .2s
+    }
+
+    .card:hover {
+      background: var(--bg3)
+    }
+
+    .card-icon {
+      font-size: 1.3rem;
+      margin-bottom: .7rem
+    }
+
+    .card-title {
+      font-size: .82rem;
+      font-weight: 600;
+      margin-bottom: .35rem
+    }
+
+    .card-body {
+      font-size: .72rem;
+      color: var(--text-mid);
+      line-height: 1.65
+    }
+
+    /* ── TABLE ── */
+    .tbl {
+      overflow-x: auto;
+      margin: 1.2rem 0
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .78rem
+    }
+
+    th {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: .6rem .9rem;
+      text-align: left;
+      font-family: 'Fira Code', monospace;
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-mid)
+    }
+
+    td {
+      border: 1px solid var(--border);
+      padding: .6rem .9rem;
+      color: var(--text-mid)
+    }
+
+    tr:hover td {
+      background: var(--bg2)
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: .08rem .35rem;
+      border-radius: 3px;
+      font-size: .82em;
+      color: var(--orange);
+    }
+
+    /* ── STEPS ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 1.2rem 0
+    }
+
+    .step {
+      display: flex;
+      gap: 1rem;
+      padding-bottom: 1.3rem;
+      position: relative
+    }
+
+    .step:last-child {
+      padding-bottom: 0
+    }
+
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0
+    }
+
+    .step-n {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fira Code', monospace;
+      font-size: .6rem;
+      color: var(--green);
+      z-index: 1;
+    }
+
+    .step-bar {
+      flex: 1;
+      width: 1px;
+      background: var(--border);
+      margin-top: 4px
+    }
+
+    .step:last-child .step-bar {
+      display: none
+    }
+
+    .step-body {
+      padding-top: 3px
+    }
+
+    .step-title {
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: .3rem
+    }
+
+    .step-desc {
+      font-size: .78rem;
+      color: var(--text-mid);
+      line-height: 1.75
+    }
+
+    /* ── ANALOGY ── */
+    .analogy {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.3rem;
+      margin: 1.2rem 0;
+    }
+
+    .analogy-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: .58rem;
+      color: var(--purple);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: .4rem;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+
+    .analogy p {
+      font-size: .84rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin: 0
+    }
+
+    .analogy p strong {
+      color: var(--purple)
+    }
+
+    /* ── COMPARE ── */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+      margin: 1.2rem 0
+    }
+
+    @media(max-width:600px) {
+      .compare {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .cmp {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem
+    }
+
+    .cmp h4 {
+      font-size: .78rem;
+      font-weight: 600;
+      margin-bottom: .7rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .cmp ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem
+    }
+
+    .cmp li {
+      font-size: .74rem;
+      color: var(--text-mid);
+      display: flex;
+      gap: .4rem;
+      line-height: 1.5
+    }
+
+    .cmp li::before {
+      content: '→';
+      color: var(--text-dim);
+      flex-shrink: 0
+    }
+
+    /* ── TOKEN VISUAL ── */
+    .tokens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: .8rem 0
+    }
+
+    .tok {
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      border: 1px solid;
+      font-family: 'Fira Code', monospace;
+      font-size: .7rem;
+    }
+
+    .tok-1 {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-dim)
+    }
+
+    .tok-2 {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-dim)
+    }
+
+    .tok-3 {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: var(--purple-dim)
+    }
+
+    .tok-4 {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-dim)
+    }
+
+    .tok-5 {
+      border-color: var(--yellow);
+      color: var(--yellow);
+      background: var(--yellow-dim)
+    }
+
+    .tok-6 {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: var(--cyan-dim)
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 3.5rem 0
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-block;
+      font-family: 'Fira Code', monospace;
+      font-size: .55rem;
+      padding: .15rem .45rem;
+      border-radius: 3px;
+      font-weight: 500;
+      vertical-align: middle;
+      margin-left: .3rem;
+    }
+
+    .new {
+      background: var(--green-dim);
+      color: var(--green)
+    }
+
+    .hot {
+      background: var(--orange-dim);
+      color: var(--orange)
+    }
+
+    .core {
+      background: var(--blue-dim);
+      color: var(--blue)
+    }
+
+    /* ── REACT BOX ── */
+    .react-trace {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      margin: 1.2rem 0;
+      font-family: 'Fira Code', monospace;
+      font-size: .75rem;
+      line-height: 2;
+    }
+
+    .rt-thought {
+      color: var(--yellow)
+    }
+
+    .rt-action {
+      color: var(--green)
+    }
+
+    .rt-obs {
+      color: var(--blue)
+    }
+
+    .rt-final {
+      color: var(--purple);
+      font-weight: 500
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 3.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Fira Code', monospace;
+      font-size: .58rem;
+      color: var(--text-dim);
+    }
+
+    @media(max-width:600px) {
+      footer {
+        padding: 1.5rem 1.2rem;
+        flex-direction: column;
+        gap: .8rem;
+        text-align: center
+      }
+    }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .6s ease, transform .6s ease
+    }
+
+    .reveal.show {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    /* ── SOURCE TAG ── */
+    .src-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin: 1rem 0
+    }
+
+    .src-tag {
+      font-family: 'Fira Code', monospace;
+      font-size: .55rem;
+      border: 1px solid var(--border);
+      padding: .15rem .5rem;
+      border-radius: 3px;
+      color: var(--text-dim);
+    }
+
+    /* ── ATTENTION VISUAL ── */
+    .att-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      margin: .8rem 0;
+      max-width: 300px;
+    }
+
+    .att-cell {
+      padding: .4rem;
+      text-align: center;
+      font-family: 'Fira Code', monospace;
+      font-size: .6rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── MCP ARCH ── */
+    .mcp-arch {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem
+    }
+
+    .mcp-row {
+      display: flex;
+      gap: .8rem;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .mcp-servers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5rem;
+      margin-top: .5rem
+    }
+
+    /* ── RAG PIPE ── */
+    .rag-pipe {
+      display: flex;
+      flex-direction: column;
+      gap: .8rem
+    }
+
+    .rag-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      flex-wrap: wrap
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="prog">
+    <div id="prog-fill"></div>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">AI Decoded</a>
+    <div class="nav-tabs">
+      <a href="#ai" class="nav-tab">What is AI</a>
+      <a href="#llm" class="nav-tab">LLMs</a>
+      <a href="#transformer" class="nav-tab">Transformers</a>
+      <a href="#tokens" class="nav-tab">Tokens</a>
+      <a href="#prompt" class="nav-tab">Prompting</a>
+      <a href="#api" class="nav-tab">APIs</a>
+      <a href="#backend" class="nav-tab">Backend</a>
+      <a href="#rag" class="nav-tab">RAG</a>
+      <a href="#mcp" class="nav-tab">MCP</a>
+      <a href="#agents" class="nav-tab">Agents</a>
+      <a href="#build" class="nav-tab">Build</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sb-group">
+        <p class="sb-head">Foundations</p>
+        <a href="#ai" class="sb-item"><span class="sb-dot" style="background:var(--green)"></span>What is AI?</a>
+        <a href="#llm" class="sb-item"><span class="sb-dot" style="background:var(--blue)"></span>Large Language
+          Models</a>
+        <a href="#transformer" class="sb-item"><span class="sb-dot" style="background:var(--purple)"></span>Transformer
+          Architecture</a>
+        <a href="#tokens" class="sb-item"><span class="sb-dot" style="background:var(--orange)"></span>Tokens &
+          Context</a>
+        <a href="#prompt" class="sb-item"><span class="sb-dot" style="background:var(--yellow)"></span>Prompt
+          Engineering</a>
+      </div>
+      <div class="sb-group">
+        <p class="sb-head">Building</p>
+        <a href="#api" class="sb-item"><span class="sb-dot" style="background:var(--cyan)"></span>APIs & SDKs</a>
+        <a href="#backend" class="sb-item"><span class="sb-dot" style="background:var(--red)"></span>Backend
+          Architecture</a>
+      </div>
+      <div class="sb-group">
+        <p class="sb-head">Advanced</p>
+        <a href="#rag" class="sb-item"><span class="sb-dot" style="background:var(--blue)"></span>RAG Systems</a>
+        <a href="#mcp" class="sb-item"><span class="sb-dot" style="background:var(--purple)"></span>MCP Servers</a>
+        <a href="#agents" class="sb-item"><span class="sb-dot" style="background:var(--green)"></span>AI Agents</a>
+        <a href="#build" class="sb-item"><span class="sb-dot" style="background:var(--orange)"></span>Build It</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+
+      <!-- HERO -->
+      <div class="hero reveal">
+        <p class="hero-tag">Complete Technical Guide · 2024–2025</p>
+        <h1>AI, LLMs, APIs & MCP<br><em>Decoded from Scratch</em></h1>
+        <p>Built from the best explanations across Anthropic's docs, OpenAI's cookbook, DeepLearning.AI, Sebastian
+          Raschka's research, Pinecone's RAG guide, IBM's agent docs, and Wikipedia. Assumes zero prior knowledge.</p>
+        <div class="hero-chips">
+          <span class="chip">🧠 LLMs</span><span class="chip">⚡ Transformers</span>
+          <span class="chip">🎯 Prompting</span><span class="chip">🔌 APIs</span>
+          <span class="chip">📚 RAG</span><span class="chip">🔧 MCP</span>
+          <span class="chip">🤖 AI Agents</span><span class="chip">🚀 Build</span>
+        </div>
+      </div>
+
+      <!-- ══ CH 1: WHAT IS AI ══ -->
+      <div class="chapter reveal" id="ai">
+        <div class="ch-header">
+          <span class="ch-num">01</span>
+          <h2 class="ch-title">What is Artificial Intelligence?</h2>
+          <span class="ch-source">Wikipedia, IBM</span>
+        </div>
+
+        <p class="body"><strong>Artificial Intelligence</strong> is software that can perform tasks that normally
+          require human-level intelligence — reading, writing, reasoning, recognising images, translating languages. The
+          key word is "normally." AI doesn't think the way humans do — it learns patterns from enormous amounts of data.
+        </p>
+
+        <div class="analogy">
+          <p class="analogy-tag">💡 Analogy</p>
+          <p>Imagine showing a child <strong>10,000 pictures of cats</strong> labelled "cat," and 10,000 pictures of
+            dogs labelled "dog." The child learns what features cats and dogs have. AI training is the same — billions
+            of examples, millions of repetitions, until it recognises patterns reliably.</p>
+        </div>
+
+        <h3 class="sub">Types of AI</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="card-icon">🏹</div>
+            <div class="card-title">Narrow AI</div>
+            <div class="card-body">Does one specific thing well. Spam filters, chess engines, face unlock. Almost all AI
+              today is this.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">✨</div>
+            <div class="card-title">Generative AI</div>
+            <div class="card-body">Creates new content — text, images, code, audio. ChatGPT, Claude, DALL-E, Sora,
+              Midjourney are all generative AI.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">🌌</div>
+            <div class="card-title">AGI</div>
+            <div class="card-body">AI that can do anything a human can. Does not exist yet. Still theoretical research
+              goal.</div>
+          </div>
+        </div>
+
+        <h3 class="sub">How AI Learns: The Training Process</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-left">
+              <div class="step-n">1</div>
+              <div class="step-bar"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Collect Massive Data</div>
+              <div class="step-desc">Billions of sentences from the internet, books, Wikipedia, code repositories. For
+                GPT-3 this was ~300 billion tokens from Common Crawl, WebText, Wikipedia and books.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left">
+              <div class="step-n">2</div>
+              <div class="step-bar"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Pre-Training (Self-Supervised)</div>
+              <div class="step-desc">The model tries to predict the next word in a sentence — billions of times. It
+                checks if it was right, adjusts internal numbers (weights), and repeats on thousands of GPUs for weeks
+                or months.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left">
+              <div class="step-n">3</div>
+              <div class="step-bar"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">RLHF — Fine-Tuning with Humans</div>
+              <div class="step-desc">Human raters compare two model responses and say which is better. The model learns
+                to prefer more helpful, accurate, and safe outputs. Used by both OpenAI and Anthropic.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left">
+              <div class="step-n">4</div>
+              <div class="step-bar"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Deploy via API</div>
+              <div class="step-desc">The trained model is hosted on servers. You interact with it through a website
+                (ChatGPT, Claude.ai) or programmatically through an API.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 2: LLMs ══ -->
+      <div class="chapter reveal" id="llm">
+        <div class="ch-header">
+          <span class="ch-num">02</span>
+          <h2 class="ch-title">Large Language Models (LLMs)</h2>
+          <span class="ch-source">Wikipedia, DeepLearning.AI</span>
+        </div>
+
+        <p class="body"><strong>LLM = Large Language Model.</strong> It's the type of AI behind ChatGPT, Claude, and
+          Gemini. "Large" refers to the number of <strong>parameters</strong> — internal numerical values that the model
+          learns during training. More parameters generally = more capability (but also more cost and compute).</p>
+
+        <div class="callout info">
+          <p class="callout-label">ℹ️ KEY CONCEPT</p>
+          <p>LLMs are fundamentally <strong>next-token predictors</strong>. They don't understand language the way
+            humans do — they learn extremely rich statistical patterns over trillions of tokens. The outputs look
+            intelligent because the patterns are so deep.</p>
+        </div>
+
+        <h3 class="sub">Parameter Counts — The "Large" in LLM</h3>
+        <div class="tbl">
+          <table>
+            <tr>
+              <th>Model</th>
+              <th>Params</th>
+              <th>By</th>
+              <th>Year</th>
+              <th>Notes</th>
+            </tr>
+            <tr>
+              <td>GPT-2</td>
+              <td>1.5B</td>
+              <td>OpenAI</td>
+              <td>2019</td>
+              <td>First publicly released large model</td>
+            </tr>
+            <tr>
+              <td>GPT-3</td>
+              <td>175B</td>
+              <td>OpenAI</td>
+              <td>2020</td>
+              <td>Launched the "foundation model" era</td>
+            </tr>
+            <tr>
+              <td>GPT-4</td>
+              <td>~1T (est.)</td>
+              <td>OpenAI</td>
+              <td>2023</td>
+              <td>Multimodal; architecture undisclosed</td>
+            </tr>
+            <tr>
+              <td>Claude 3.5 Sonnet</td>
+              <td>Undisclosed</td>
+              <td>Anthropic</td>
+              <td>2024</td>
+              <td>200K context window</td>
+            </tr>
+            <tr>
+              <td>Llama 3.1</td>
+              <td>8B–405B</td>
+              <td>Meta</td>
+              <td>2024</td>
+              <td>Open-weight, runs locally</td>
+            </tr>
+            <tr>
+              <td>Gemini 1.5 Pro</td>
+              <td>Undisclosed</td>
+              <td>Google</td>
+              <td>2024</td>
+              <td>1M token context window</td>
+            </tr>
+          </table>
+        </div>
+
+        <h3 class="sub">Two Main Types of LLMs</h3>
+        <div class="compare">
+          <div class="cmp">
+            <h4 style="color:var(--blue)">Decoder-Only (GPT-style)</h4>
+            <ul>
+              <li>Generates text left-to-right</li>
+              <li>Used for: chat, code, creative writing</li>
+              <li>Examples: GPT-4, Claude, Llama 3</li>
+              <li>Trained on "next token prediction"</li>
+            </ul>
+          </div>
+          <div class="cmp">
+            <h4 style="color:var(--purple)">Encoder-Only (BERT-style)</h4>
+            <ul>
+              <li>Reads and classifies text</li>
+              <li>Used for: sentiment, search, classification</li>
+              <li>Examples: BERT, RoBERTa, DistilBERT</li>
+              <li>Trained on "masked token prediction"</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout insight">
+          <p class="callout-label">🔬 FROM RESEARCH</p>
+          <p>According to Wikipedia's LLM article, as of 2024, the largest and most capable models are all based on the
+            decoder-only Transformer architecture. LLMs like GPT-4 and Claude demonstrate "emergent behaviours" —
+            capabilities that appeared unexpectedly at scale that weren't explicitly trained for, like multi-step
+            reasoning and code generation.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 3: TRANSFORMER ══ -->
+      <div class="chapter reveal" id="transformer">
+        <div class="ch-header">
+          <span class="ch-num">03</span>
+          <h2 class="ch-title">The Transformer Architecture</h2>
+          <span class="ch-source">Attention Is All You Need, Sebastian Raschka, IBM</span>
+        </div>
+
+        <p class="body">Every modern LLM is built on the <strong>Transformer architecture</strong>, introduced by Google
+          in the 2017 paper "Attention Is All You Need." Before Transformers, language models used Recurrent Neural
+          Networks (RNNs) which processed text one word at a time — slow, and bad at remembering things said far back in
+          a sentence. Transformers process the entire sequence at once using a mechanism called
+          <strong>attention</strong>.
+        </p>
+
+        <div class="src-row">
+          <span class="src-tag">📄 "Attention Is All You Need" (2017)</span>
+          <span class="src-tag">📚 transformer-explainer.poloclub.github.io</span>
+          <span class="src-tag">📚 sebastianraschka.com</span>
+        </div>
+
+        <h3 class="sub">The Core Idea: Attention</h3>
+        <p class="body">The <strong>attention mechanism</strong> lets every word "look at" every other word in the
+          sentence and decide how much weight to give it. Consider:</p>
+
+        <div class="diagram">
+          <p class="diag-title">How Attention Resolves Ambiguity</p>
+          <p style="font-family:'Fira Code',monospace;font-size:.75rem;color:var(--text-mid);margin-bottom:1rem">"The
+            bat flew over the <span style="color:var(--green)">swing</span>" → bat = <span
+              style="color:var(--orange)">animal</span> (high attention to "swing", "flew")</p>
+          <p style="font-family:'Fira Code',monospace;font-size:.75rem;color:var(--text-mid)">"He hit the ball with the
+            <span style="color:var(--blue)">bat</span>" → bat = <span style="color:var(--purple)">sports
+              equipment</span> (high attention to "hit", "ball")
+          </p>
+        </div>
+
+        <div class="callout source">
+          <p class="callout-label">📚 FROM DATACAMP</p>
+          <p>Attention mechanisms assign a score to each word based on relevance. Words like "swing" and "flew" get high
+            scores when resolving "bat" as an animal, vs "hit" and "ball" for the sports equipment meaning. This lets
+            the model understand context across the whole sentence simultaneously.</p>
+        </div>
+
+        <h3 class="sub">Self-Attention: Q, K, V Matrices</h3>
+        <p class="body">Each token is multiplied by three learned weight matrices to produce Query (Q), Key (K) and
+          Value (V) vectors. The dot product of Q and K gives an attention score — how much this token should "attend
+          to" another token. These scores are scaled, masked (to prevent peeking at future tokens), run through Softmax
+          to become probabilities, then multiplied by V.</p>
+
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Pseudocode ·
+              Self-Attention</span>
+          </div>
+          <pre><span class="cm"># Each word → 3 vectors via learned weight matrices</span>
+Q = token_embedding @ W_Q   <span class="cm"># "What am I looking for?"</span>
+K = token_embedding @ W_K   <span class="cm"># "What do I contain?"</span>
+V = token_embedding @ W_V   <span class="cm"># "What do I contribute?"</span>
+
+<span class="cm"># Attention score: how much should token A attend to token B?</span>
+scores = (Q @ K.T) / sqrt(d_k)   <span class="cm"># Scale to prevent vanishing gradients</span>
+scores = <span class="fn">masked_fill</span>(scores, future_mask, -inf)  <span class="cm"># Can't peek ahead</span>
+weights = <span class="fn">softmax</span>(scores)         <span class="cm"># Probabilities (sum to 1)</span>
+
+<span class="cm"># Weighted sum of values = context-aware representation</span>
+output = weights @ V</pre>
+        </div>
+
+        <h3 class="sub">Multi-Head Attention</h3>
+        <p class="body">Instead of one attention calculation, Transformers run <strong>multiple attention heads in
+            parallel</strong> (GPT-2 small has 12, larger models have 96+). Each head learns to attend to different
+          aspects — one might focus on grammar, another on named entities, another on long-range topic dependencies.
+          Their outputs are concatenated and projected.</p>
+
+        <h3 class="sub">Full Transformer Block (Decoder)</h3>
+        <div class="layers">
+          <div class="layer" style="border-color:var(--green);background:var(--green-dim)">
+            <span class="layer-l" style="color:var(--green)">Language Model Head (Output)</span>
+            <span class="layer-r">Projects to vocab size → probabilities over 50k+ tokens</span>
+          </div>
+          <div class="layer" style="border-color:var(--blue);background:var(--blue-dim)">
+            <span class="layer-l" style="color:var(--blue)">Feed-Forward Network (×N layers)</span>
+            <span class="layer-r">Refines each token's representation independently</span>
+          </div>
+          <div class="layer" style="border-color:var(--purple);background:var(--purple-dim)">
+            <span class="layer-l" style="color:var(--purple)">Multi-Head Masked Self-Attention (×N layers)</span>
+            <span class="layer-r">Tokens attend to all previous tokens — the "magic"</span>
+          </div>
+          <div class="layer" style="border-color:var(--orange);background:var(--orange-dim)">
+            <span class="layer-l" style="color:var(--orange)">Positional Encoding</span>
+            <span class="layer-r">Adds order info — "this is word 5 of 20"</span>
+          </div>
+          <div class="layer" style="border-color:var(--text-dim);background:var(--bg3)">
+            <span class="layer-l" style="color:var(--text-mid)">Token Embedding Layer</span>
+            <span class="layer-r">Words → dense vectors (numbers)</span>
+          </div>
+          <div class="layer" style="border-color:var(--text-dim);background:var(--bg3)">
+            <span class="layer-l" style="color:var(--text-dim)">Input: Raw Text</span>
+            <span class="layer-r">"Hello world" → tokenised → [15496, 995]</span>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <p class="callout-label">✅ KEY INSIGHT (from Transformer Explainer, Georgia Tech)</p>
+          <p>The transformer processes text through three stages: (1) Tokenisation & Embedding, (2) A stack of
+            Transformer blocks (each containing attention + feed-forward layers), (3) A Language Model Head that
+            converts the final representation into a probability over all possible next tokens.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 4: TOKENS ══ -->
+      <div class="chapter reveal" id="tokens">
+        <div class="ch-header">
+          <span class="ch-num">04</span>
+          <h2 class="ch-title">Tokens & Context Windows</h2>
+          <span class="ch-source">OpenAI Tokenizer, IBM, Wikipedia</span>
+        </div>
+
+        <p class="body"><strong>Tokens</strong> are the basic unit LLMs work with — not characters, not words, but
+          chunks. They're determined by a tokenizer (like BPE — Byte Pair Encoding) trained to find the most efficient
+          way to chop up text. One token ≈ 4 characters ≈ ¾ of a word in English.</p>
+
+        <div class="diagram">
+          <p class="diag-title">Same Sentence — Different Tokens</p>
+          <p style="font-family:'Fira Code',monospace;font-size:.7rem;color:var(--text-mid);margin-bottom:.8rem">Input:
+            "Transformers are changing everything"</p>
+          <div class="tokens">
+            <span class="tok tok-1">Transform</span>
+            <span class="tok tok-2">ers</span>
+            <span class="tok tok-3"> are</span>
+            <span class="tok tok-4"> changing</span>
+            <span class="tok tok-5"> every</span>
+            <span class="tok tok-6">thing</span>
+          </div>
+          <p style="font-family:'Fira Code',monospace;font-size:.6rem;color:var(--text-dim);margin-top:.8rem">6 tokens ·
+            Note "Transformers" = 2 tokens, "everything" = 2 tokens</p>
+        </div>
+
+        <div class="callout warn">
+          <p class="callout-label">⚠️ WHY TOKENS MATTER FOR YOU</p>
+          <p>API pricing is per token (both input and output). Temperature and max_tokens you set in your API call
+            directly control the length of output. Longer prompts = higher cost. Always be aware of how many tokens your
+            prompt uses before deploying at scale.</p>
+        </div>
+
+        <h3 class="sub">Context Window — The AI's "Working Memory"</h3>
+        <p class="body">The <strong>context window</strong> is the maximum number of tokens the model can process in one
+          call — your messages + the AI's replies + any system instructions, all counted together. Once the context is
+          full, older messages are dropped.</p>
+
+        <div class="tbl">
+          <table>
+            <tr>
+              <th>Model</th>
+              <th>Context Window</th>
+              <th>Equivalent</th>
+              <th>Use Case</th>
+            </tr>
+            <tr>
+              <td>GPT-3.5 Turbo</td>
+              <td>16K tokens</td>
+              <td>~12,000 words</td>
+              <td>Short chats, summaries</td>
+            </tr>
+            <tr>
+              <td>GPT-4o</td>
+              <td>128K tokens</td>
+              <td>~100K words / short novel</td>
+              <td>Long docs, codebases</td>
+            </tr>
+            <tr>
+              <td>Claude 3.5 Sonnet</td>
+              <td>200K tokens</td>
+              <td>~150K words</td>
+              <td>Entire books, large codebases</td>
+            </tr>
+            <tr>
+              <td>Gemini 1.5 Pro</td>
+              <td>1M tokens</td>
+              <td>~750K words</td>
+              <td>Hours of video, entire repos</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="callout info">
+          <p class="callout-label">ℹ️ NO PERSISTENT MEMORY</p>
+          <p>LLMs have <strong>no memory between conversations</strong>. Each new chat session starts completely fresh.
+            The "memory" features you see in apps (like ChatGPT's memory) are built on top of the API — they inject past
+            conversation summaries into the system prompt. This is important to understand when building apps.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 5: PROMPT ENGINEERING ══ -->
+      <div class="chapter reveal" id="prompt">
+        <div class="ch-header">
+          <span class="ch-num">05</span>
+          <h2 class="ch-title">Prompt Engineering</h2>
+          <span class="ch-source">OpenAI Docs, PromptingGuide.ai, Lakera, Anthropic</span>
+        </div>
+
+        <p class="body">A <strong>prompt</strong> is the input you give the AI. <strong>Prompt engineering</strong> is
+          the skill of designing prompts that reliably produce the outputs you want. According to OpenAI's prompting
+          guide: <em>"AI engineering is inherently an empirical discipline — LLMs are nondeterministic. Build evals and
+            iterate often."</em></p>
+
+        <h3 class="sub">Anatomy of a Complete Prompt</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Prompt
+              Structure</span>
+          </div>
+          <pre><span class="cm">// ① SYSTEM PROMPT — sets AI's role, rules, and tone</span>
+<span class="str">"You are a senior Python engineer. Write clean, documented code.
+Always add type hints. Raise exceptions with descriptive messages."</span>
+
+<span class="cm">// ② FEW-SHOT EXAMPLES — show the pattern you want</span>
+<span class="str">"Example:
+Input: 'parse CSV'
+Output: def parse_csv(path: str) -&gt; list[dict]: ..."</span>
+
+<span class="cm">// ③ CONTEXT — give the AI what it needs</span>
+<span class="str">"The CSV has columns: name, age, email, signup_date"</span>
+
+<span class="cm">// ④ TASK — the actual instruction</span>
+<span class="str">"Write a function that reads the CSV and returns
+only users who signed up in the last 30 days."</span>
+
+<span class="cm">// ⑤ OUTPUT FORMAT — tell it exactly what to produce</span>
+<span class="str">"Return only the Python function. No explanation."</span></pre>
+        </div>
+
+        <h3 class="sub">Technique 1: Chain-of-Thought (CoT)</h3>
+        <p class="body">Adding "Think step by step" forces the model to reason before answering. Introduced in Wei et
+          al. (2022), CoT dramatically improved accuracy on math and reasoning tasks. Research showed PaLM's score on
+          math word problems rose <strong>from 18% to 57%</strong> using few-shot CoT prompts.</p>
+
+        <div class="compare">
+          <div class="cmp">
+            <h4 style="color:var(--red)">❌ Without CoT</h4>
+            <ul>
+              <li>Q: "I had 10 apples, gave 2 to neighbor, 2 to repairman, bought 5 more, ate 1. How many?"</li>
+              <li style="color:var(--red)">→ Wrong answer: "12"</li>
+            </ul>
+          </div>
+          <div class="cmp">
+            <h4 style="color:var(--green)">✅ With "Think step by step"</h4>
+            <ul>
+              <li>Start: 10. Gave 2+2=4 away → 6. Bought 5 → 11. Ate 1 → 10.</li>
+              <li style="color:var(--green)">→ Correct answer: "10"</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout source">
+          <p class="callout-label">📚 FROM PROMPTINGGUIDE.AI</p>
+          <p>Zero-shot CoT (Kojima et al. 2022): Simply adding "Let's think step by step" to a prompt, without any
+            examples, significantly improves performance on reasoning tasks. Self-Consistency further improves this by
+            sampling multiple reasoning paths and taking a majority vote — raising accuracy on math word problems from
+            57% to 74%.</p>
+        </div>
+
+        <h3 class="sub">Technique 2: Few-Shot Learning</h3>
+        <p class="body">Provide 2–5 examples of the exact input→output pattern you want. The model picks up the pattern
+          and applies it to new inputs. From OpenAI's documentation: <em>"Few-shot prompting lets you steer an LLM
+            toward a new task by including examples, rather than fine-tuning the model."</em></p>
+
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python ·
+              Few-Shot in API Call</span>
+          </div>
+          <pre><span class="cm"># Few-shot: classify customer reviews</span>
+messages = [
+  {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"Label reviews as Positive, Negative, or Neutral."</span>},
+  {<span class="str">"role"</span>: <span class="str">"user"</span>,   <span class="str">"content"</span>: <span class="str">"The battery life is amazing!"</span>},
+  {<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: <span class="str">"Positive"</span>},
+  {<span class="str">"role"</span>: <span class="str">"user"</span>,   <span class="str">"content"</span>: <span class="str">"It stopped working after 2 days."</span>},
+  {<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: <span class="str">"Negative"</span>},
+  {<span class="str">"role"</span>: <span class="str">"user"</span>,   <span class="str">"content"</span>: <span class="str">"The packaging was okay."</span>},
+  <span class="cm"># Model now understands the pattern and labels correctly</span>
+]</pre>
+        </div>
+
+        <h3 class="sub">Technique 3: Role + Format Control</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="card-icon">🎭</div>
+            <div class="card-title">Role Assignment</div>
+            <div class="card-body">"You are a cybersecurity expert…" shapes the model's vocabulary, assumptions, and
+              tone for the entire conversation.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">📐</div>
+            <div class="card-title">Output Format</div>
+            <div class="card-body">"Respond only in JSON with keys: name, score, reason." Forces structured output the
+              code can parse reliably.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">🛡️</div>
+            <div class="card-title">Prompt Scaffolding</div>
+            <div class="card-body">Wrap user input in guard templates: "You MUST only discuss [topic]. If asked anything
+              else, politely decline."</div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <p class="callout-label">✅ LAKERA'S GUIDE — PRO TIPS</p>
+          <p>Treat complex prompts like UX design. Group related instructions. Use section headers, examples, and
+            whitespace. If a human would struggle to follow it, the model probably will too. Combining prompt types
+            (few-shot + role + CoT + format) is how you go from "it kind of works" to "production-ready."</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 6: APIs ══ -->
+      <div class="chapter reveal" id="api">
+        <div class="ch-header">
+          <span class="ch-num">06</span>
+          <h2 class="ch-title">APIs — Talking to AI Programmatically</h2>
+          <span class="ch-source">OpenAI Docs, Anthropic Docs</span>
+        </div>
+
+        <p class="body">An <strong>API (Application Programming Interface)</strong> lets your code talk directly to the
+          AI model. Instead of typing in a chat window, you send a structured HTTP request with your message, and get a
+          structured response back — all in code.</p>
+
+        <div class="analogy">
+          <p class="analogy-tag">💡 Analogy</p>
+          <p>A restaurant kitchen (the AI model) makes food. You don't walk into the kitchen — a <strong>waiter (the
+              API)</strong> takes your order in a standard format (the HTTP request), goes to the kitchen, and brings
+            back your food (the JSON response). The API is the standard interface between you and the model.</p>
+        </div>
+
+        <h3 class="sub">Request → Response Flow</h3>
+        <div class="diagram">
+          <p class="diag-title">API Call Flow</p>
+          <div class="flow">
+            <div class="box box-u">Your Code</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">HTTP POST + JSON</span></div>
+            <div class="box box-o">api.openai.com<br>/v1/messages</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">Routes to</span></div>
+            <div class="box box-m">GPT-4o<br>Model</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">JSON response</span></div>
+            <div class="box box-u">Your Code</div>
+          </div>
+        </div>
+
+        <h3 class="sub">Real Code — OpenAI API</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python ·
+              OpenAI</span>
+          </div>
+          <pre><span class="kw">import</span> os
+<span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+<span class="cm"># Never hardcode keys! Use environment variables</span>
+client = <span class="fn">OpenAI</span>(api_key=os.<span class="fn">getenv</span>(<span class="str">"OPENAI_API_KEY"</span>))
+
+response = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"gpt-4o"</span>,          <span class="cm"># Which model to use</span>
+    messages=[
+        {<span class="str">"role"</span>: <span class="str">"system"</span>,    <span class="cm"># Sets AI's behaviour</span>
+         <span class="str">"content"</span>: <span class="str">"You are a helpful coding assistant."</span>},
+        {<span class="str">"role"</span>: <span class="str">"user"</span>,      <span class="cm"># User's message</span>
+         <span class="str">"content"</span>: <span class="str">"Explain what a decorator is in Python."</span>}
+    ],
+    temperature=<span class="num">0.7</span>,          <span class="cm"># 0 = deterministic, 1 = creative</span>
+    max_tokens=<span class="num">800</span>            <span class="cm"># Max length of response</span>
+)
+
+<span class="cm"># Extract the text reply</span>
+answer = response.choices[<span class="num">0</span>].message.content
+<span class="fn">print</span>(answer)
+
+<span class="cm"># Check cost: response.usage.total_tokens</span></pre>
+        </div>
+
+        <h3 class="sub">Real Code — Anthropic (Claude) API</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python ·
+              Anthropic</span>
+          </div>
+          <pre><span class="kw">import</span> anthropic, os
+
+client = anthropic.<span class="fn">Anthropic</span>(api_key=os.<span class="fn">getenv</span>(<span class="str">"ANTHROPIC_API_KEY"</span>))
+
+response = client.messages.<span class="fn">create</span>(
+    model=<span class="str">"claude-opus-4-5"</span>,
+    max_tokens=<span class="num">1024</span>,
+    system=<span class="str">"You are a helpful assistant."</span>,  <span class="cm"># Note: separate param</span>
+    messages=[
+        {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"What is a closure in JavaScript?"</span>}
+    ]
+)
+
+<span class="fn">print</span>(response.content[<span class="num">0</span>].text)
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">"Tokens: {response.usage.input_tokens} in, {response.usage.output_tokens} out"</span>)</pre>
+        </div>
+
+        <h3 class="sub">Key Parameters Explained</h3>
+        <div class="tbl">
+          <table>
+            <tr>
+              <th>Parameter</th>
+              <th>What it does</th>
+              <th>Example values</th>
+            </tr>
+            <tr>
+              <td><code>model</code></td>
+              <td>Which AI model to use</td>
+              <td><code>gpt-4o</code>, <code>claude-opus-4-5</code></td>
+            </tr>
+            <tr>
+              <td><code>temperature</code></td>
+              <td>Randomness/creativity (0–1)</td>
+              <td><code>0</code> = exact facts, <code>0.9</code> = creative writing</td>
+            </tr>
+            <tr>
+              <td><code>max_tokens</code></td>
+              <td>Maximum response length</td>
+              <td><code>256</code> = short, <code>4096</code> = long</td>
+            </tr>
+            <tr>
+              <td><code>system</code></td>
+              <td>Persistent instructions for the AI</td>
+              <td><code>"You are a JSON-only responder"</code></td>
+            </tr>
+            <tr>
+              <td><code>messages</code></td>
+              <td>Full conversation history as array</td>
+              <td>Array of {role, content} objects</td>
+            </tr>
+            <tr>
+              <td><code>stream</code></td>
+              <td>Send tokens as they're generated</td>
+              <td><code>True</code> for typing effect</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="callout warn">
+          <p class="callout-label">⚠️ API KEY SAFETY</p>
+          <p>Never hardcode API keys in your code. Use environment variables: <code>os.environ["OPENAI_API_KEY"]</code>
+            or a <code>.env</code> file with <code>python-dotenv</code>. Never commit keys to GitHub — bots scan repos
+            in minutes and will run up thousands of dollars in charges on your key.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 7: BACKEND ══ -->
+      <div class="chapter reveal" id="backend">
+        <div class="ch-header">
+          <span class="ch-num">07</span>
+          <h2 class="ch-title">AI Backend Architecture</h2>
+          <span class="ch-source">FastAPI Docs, Anthropic Docs</span>
+        </div>
+
+        <p class="body">Real-world AI apps always have a <strong>backend server</strong> between the user and the AI
+          API. Calling the AI directly from a browser would expose your API key. The backend also handles auth, rate
+          limiting, logging, conversation history, and prompt management.</p>
+
+        <h3 class="sub">Production Architecture</h3>
+        <div class="diagram">
+          <p class="diag-title">Full-Stack AI App Architecture</p>
+          <div style="display:flex;flex-direction:column;gap:.8rem">
+            <div class="flow">
+              <div class="box box-u">Browser / App</div>
+              <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">HTTPS/WebSocket</span></div>
+              <div class="box box-o">Your Backend<br>(FastAPI / Node)</div>
+              <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">API Key (secret)</span></div>
+              <div class="box box-m">OpenAI /<br>Anthropic</div>
+            </div>
+            <div class="flow" style="justify-content:flex-end">
+              <div class="box box-d">PostgreSQL<br>DB</div>
+              <div class="arr"><span class="arr-line">←</span><span class="arr-lbl">logs + history</span></div>
+              <div class="box box-o">Your Backend</div>
+              <div class="arr"><span class="arr-line">←</span><span class="arr-lbl">Streamed tokens</span></div>
+              <div class="box box-m">AI Response</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub">Streaming — The "Typing" Effect</h3>
+        <p class="body">By default, the API waits until the model finishes generating, then sends the whole response.
+          <strong>Streaming</strong> sends tokens as they're generated — creating the live "typing" effect you see in
+          ChatGPT. It makes the UI feel much faster even if total time is similar.
+        </p>
+
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python · FastAPI
+              + Streaming</span>
+          </div>
+          <pre><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">from</span> fastapi.middleware.cors <span class="kw">import</span> CORSMiddleware
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> StreamingResponse
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">import</span> anthropic, os
+
+app = <span class="fn">FastAPI</span>()
+client = anthropic.<span class="fn">Anthropic</span>()
+
+app.<span class="fn">add_middleware</span>(CORSMiddleware, allow_origins=[<span class="str">"*"</span>],
+    allow_methods=[<span class="str">"*"</span>], allow_headers=[<span class="str">"*"</span>])
+
+<span class="kw">class</span> <span class="type">ChatRequest</span>(BaseModel):
+    messages: list        <span class="cm"># Full conversation history</span>
+    system: str = <span class="str">"You are a helpful AI assistant."</span>
+
+@app.<span class="fn">post</span>(<span class="str">"/chat"</span>)
+<span class="kw">async def</span> <span class="fn">chat</span>(req: ChatRequest):
+    <span class="cm"># Generator that yields tokens as they arrive</span>
+    <span class="kw">def</span> <span class="fn">generate</span>():
+        <span class="kw">with</span> client.messages.<span class="fn">stream</span>(
+            model=<span class="str">"claude-opus-4-5"</span>,
+            max_tokens=<span class="num">1024</span>,
+            system=req.system,
+            messages=req.messages
+        ) <span class="kw">as</span> stream:
+            <span class="kw">for</span> text <span class="kw">in</span> stream.<span class="fn">text_stream</span>():
+                <span class="kw">yield</span> text  <span class="cm"># Each chunk is a few tokens</span>
+
+    <span class="kw">return</span> <span class="fn">StreamingResponse</span>(<span class="fn">generate</span>(), media_type=<span class="str">"text/plain"</span>)
+
+<span class="cm"># Run: uvicorn main:app --reload --port 8000</span></pre>
+        </div>
+
+        <h3 class="sub">Maintaining Conversation History</h3>
+        <p class="body">Since the AI has no memory between calls, <strong>you must send the full conversation
+            history</strong> with every request. Your backend stores messages in a database and loads them for each new
+          turn.</p>
+
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python ·
+              Conversation Management</span>
+          </div>
+          <pre><span class="cm"># Your backend stores messages in DB, loads per user session</span>
+conversation_history = [
+    {<span class="str">"role"</span>: <span class="str">"user"</span>,      <span class="str">"content"</span>: <span class="str">"My name is Sujal"</span>},
+    {<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: <span class="str">"Hi Sujal! How can I help?"</span>},
+    {<span class="str">"role"</span>: <span class="str">"user"</span>,      <span class="str">"content"</span>: <span class="str">"What's my name?"</span>},
+]
+
+<span class="cm"># The AI can answer correctly because history is included</span>
+response = client.messages.<span class="fn">create</span>(
+    model=<span class="str">"claude-opus-4-5"</span>,
+    max_tokens=<span class="num">512</span>,
+    messages=conversation_history  <span class="cm"># Always include full history!</span>
+)
+<span class="cm"># → "Your name is Sujal."</span></pre>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 8: RAG ══ -->
+      <div class="chapter reveal" id="rag">
+        <div class="ch-header">
+          <span class="ch-num">08</span>
+          <h2 class="ch-title">RAG — Retrieval Augmented Generation</h2>
+          <span class="ch-source">Pinecone, Wikipedia, OpenAI Help, Mistral Docs</span>
+        </div>
+
+        <p class="body"><strong>RAG</strong> solves the #1 limitation of LLMs: they only know what they were trained on.
+          They don't know about your company's internal documents, last week's news, or your database. RAG lets you
+          <strong>inject fresh, relevant context</strong> at query time — without retraining the model.
+        </p>
+
+        <div class="callout source">
+          <p class="callout-label">📚 FROM PINECONE'S RAG GUIDE</p>
+          <p>RAG has four core phases: (1) <strong>Ingestion</strong> — load your data into a vector database. (2)
+            <strong>Retrieval</strong> — find the most relevant chunks for a user query. (3)
+            <strong>Augmentation</strong> — combine retrieved data + the query into a prompt. (4)
+            <strong>Generation</strong> — the LLM uses the context to produce an accurate, grounded answer.
+          </p>
+        </div>
+
+        <h3 class="sub">Full RAG Pipeline</h3>
+        <div class="diagram">
+          <p class="diag-title">RAG: Indexing Phase (one-time setup)</p>
+          <div class="flow" style="flex-wrap:wrap;gap:.7rem">
+            <div class="box box-d">Your Docs<br>(PDFs, wikis)</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">chunk</span></div>
+            <div class="box box-o">Text<br>Chunks</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">embed</span></div>
+            <div class="box box-m">Embedding<br>Model</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">store</span></div>
+            <div class="box box-c">Vector DB<br>(Pinecone)</div>
+          </div>
+          <div style="height:1rem"></div>
+          <p class="diag-title">RAG: Query Phase (every request)</p>
+          <div class="flow" style="flex-wrap:wrap;gap:.7rem">
+            <div class="box box-u">User Question</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">embed</span></div>
+            <div class="box box-c">Vector DB<br>Search</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">top-3 chunks</span></div>
+            <div class="box box-m">LLM + Context</div>
+            <div class="arr"><span class="arr-line">→</span><span class="arr-lbl">answer</span></div>
+            <div class="box box-u">Grounded<br>Answer</div>
+          </div>
+        </div>
+
+        <h3 class="sub">Embeddings — The Heart of RAG</h3>
+        <p class="body">An <strong>embedding</strong> converts text into a list of numbers (a vector) that captures its
+          semantic meaning. Similar sentences get similar vectors. This lets you search by <em>meaning</em> rather than
+          exact keywords.</p>
+
+        <div class="analogy">
+          <p class="analogy-tag">💡 Analogy (from Microsoft Azure)</p>
+          <p>Embeddings can do math: <strong>embedding("king") - embedding("man") + embedding("woman") ≈
+              embedding("queen")</strong>. The numerical representation captures semantic relationships — words with
+            similar meanings cluster together in vector space.</p>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python · Full
+              RAG Implementation</span>
+          </div>
+          <pre><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+client = <span class="fn">OpenAI</span>()
+
+<span class="cm"># ① INGESTION: Convert your docs to embeddings</span>
+<span class="kw">def</span> <span class="fn">embed</span>(text: str) -> list[float]:
+    response = client.embeddings.<span class="fn">create</span>(
+        input=text,
+        model=<span class="str">"text-embedding-3-small"</span>  <span class="cm"># 1536-dim vectors</span>
+    )
+    <span class="kw">return</span> response.data[<span class="num">0</span>].embedding
+
+<span class="cm"># Your documents (in production, store in Pinecone/pgvector)</span>
+docs = [
+    <span class="str">"Our refund policy is 30 days from purchase date."</span>,
+    <span class="str">"To reset your password, go to Settings → Security."</span>,
+    <span class="str">"We offer free shipping on orders over ₹500."</span>,
+]
+doc_vectors = [<span class="fn">embed</span>(d) <span class="kw">for</span> d <span class="kw">in</span> docs]
+
+<span class="cm"># ② RETRIEVAL: Find most similar doc to user query</span>
+<span class="kw">def</span> <span class="fn">cosine_similarity</span>(a, b):
+    <span class="kw">return</span> np.<span class="fn">dot</span>(a, b) / (np.<span class="fn">linalg.norm</span>(a) * np.<span class="fn">linalg.norm</span>(b))
+
+user_query = <span class="str">"Can I return something after 3 weeks?"</span>
+query_vec = <span class="fn">embed</span>(user_query)
+
+scores = [<span class="fn">cosine_similarity</span>(query_vec, dv) <span class="kw">for</span> dv <span class="kw">in</span> doc_vectors]
+best_doc = docs[np.<span class="fn">argmax</span>(scores)]  <span class="cm"># Most relevant: refund policy doc</span>
+
+<span class="cm"># ③ AUGMENTATION + GENERATION</span>
+response = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"gpt-4o"</span>,
+    messages=[{
+        <span class="str">"role"</span>: <span class="str">"user"</span>,
+        <span class="str">"content"</span>: <span class="fn">f</span><span class="str">"""Use this context to answer:
+CONTEXT: {best_doc}
+QUESTION: {user_query}
+If context doesn't have the answer, say "I don't know."</span><span class="str">"""</span>
+    }]
+)
+<span class="fn">print</span>(response.choices[<span class="num">0</span>].message.content)
+<span class="cm"># → "Our refund policy is 30 days, so returning after 3 weeks is within the window."</span></pre>
+        </div>
+
+        <div class="callout warn">
+          <p class="callout-label">⚠️ RAG DOESN'T FULLY STOP HALLUCINATIONS</p>
+          <p>According to Wikipedia's RAG entry (citing Ars Technica): "RAG is not a direct solution to hallucination
+            because the LLM can still hallucinate around the source material." Always instruct the model: "If the
+            context doesn't contain the answer, say 'I don't know'." and validate critical outputs.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 9: MCP ══ -->
+      <div class="chapter reveal" id="mcp">
+        <div class="ch-header">
+          <span class="ch-num">09</span>
+          <h2 class="ch-title">MCP — Model Context Protocol <span class="badge new">Nov 2024</span></h2>
+          <span class="ch-source">Anthropic, Wikipedia, Google Cloud, Aerospike</span>
+        </div>
+
+        <p class="body"><strong>MCP (Model Context Protocol)</strong> is an open standard introduced by Anthropic in
+          November 2024. It solves the "N×M integration problem" — instead of building a custom connector for every AI
+          model + every tool combination, MCP provides one universal protocol. Connect once, work with any AI.</p>
+
+        <div class="callout source">
+          <p class="callout-label">📚 FROM ANTHROPIC'S ANNOUNCEMENT</p>
+          <p>MCP is described as the "USB-C port for AI applications." Just as USB-C standardises device connections,
+            MCP standardises how AI systems connect to data sources and tools. By late 2025, the community had built
+            over 16,000 MCP servers for services ranging from Google Drive to PostgreSQL to Slack.</p>
+        </div>
+
+        <h3 class="sub">The Problem MCP Solves</h3>
+        <div class="compare">
+          <div class="cmp">
+            <h4 style="color:var(--red)">❌ Before MCP — N×M Problem</h4>
+            <ul>
+              <li>3 AI models × 10 tools = 30 custom integrations</li>
+              <li>Each integration is bespoke code</li>
+              <li>Hard to maintain, doesn't scale</li>
+              <li>Adding a new tool = rewrite integrations</li>
+            </ul>
+          </div>
+          <div class="cmp">
+            <h4 style="color:var(--green)">✅ After MCP — Universal Protocol</h4>
+            <ul>
+              <li>Build MCP server once, works with all AI clients</li>
+              <li>Claude, GPT, Gemini can all use same server</li>
+              <li>OpenAI and Google DeepMind both adopted it</li>
+              <li>16,000+ pre-built MCP servers in community</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="sub">MCP Architecture</h3>
+        <div class="diagram">
+          <p class="diag-title">MCP: Three-Layer Architecture</p>
+          <div class="mcp-arch">
+            <div class="mcp-row">
+              <div class="box box-m" style="min-width:120px">AI Model<br>(Claude / GPT)</div>
+              <div class="arr"><span class="arr-line">↔</span><span class="arr-lbl">MCP Protocol</span></div>
+              <div class="box box-o" style="min-width:120px">MCP Client<br>(Host App)</div>
+              <div class="arr"><span class="arr-line">↔</span><span class="arr-lbl">JSON-RPC 2.0</span></div>
+              <div class="box box-s" style="min-width:120px">MCP Server</div>
+            </div>
+            <div style="margin-top:.5rem">
+              <p style="font-family:'Fira Code',monospace;font-size:.58rem;color:var(--text-dim);margin-bottom:.5rem">
+                MCP Server connects to any external resource:</p>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem">
+                <div class="box box-d" style="font-size:.6rem">File System</div>
+                <div class="box box-d" style="font-size:.6rem">PostgreSQL</div>
+                <div class="box box-d" style="font-size:.6rem">GitHub API</div>
+                <div class="box box-d" style="font-size:.6rem">Slack / Notion</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub">Three MCP Primitives (from Anthropic's Course)</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="card-icon">🛠️</div>
+            <div class="card-title">Tools</div>
+            <div class="card-body"><strong>Model-controlled.</strong> Functions the AI decides to call. e.g.,
+              <code>search_db(query)</code>, <code>send_email(to, body)</code>, <code>create_file(name)</code>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon">📂</div>
+            <div class="card-title">Resources</div>
+            <div class="card-body"><strong>App-controlled.</strong> Data injected into context. e.g., file contents,
+              database records, calendar events — read without AI deciding.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">📋</div>
+            <div class="card-title">Prompts</div>
+            <div class="card-body"><strong>User-controlled.</strong> Reusable prompt templates stored on the server. AI
+              can request specific structured prompts for common tasks.</div>
+          </div>
+        </div>
+
+        <h3 class="sub">Building a Minimal MCP Server</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python · MCP
+              Server (install: pip install mcp)</span>
+          </div>
+          <pre><span class="kw">from</span> mcp.server <span class="kw">import</span> Server
+<span class="kw">from</span> mcp.server.stdio <span class="kw">import</span> stdio_server
+<span class="kw">from</span> mcp.types <span class="kw">import</span> Tool, TextContent
+<span class="kw">import</span> asyncio, httpx
+
+app = <span class="fn">Server</span>(<span class="str">"weather-server"</span>)
+
+<span class="cm"># ① Tell the AI what tools you have</span>
+@app.<span class="fn">list_tools</span>()
+<span class="kw">async def</span> <span class="fn">list_tools</span>():
+    <span class="kw">return</span> [
+        <span class="fn">Tool</span>(
+            name=<span class="str">"get_weather"</span>,
+            description=<span class="str">"Gets current weather for any city"</span>,
+            inputSchema={
+                <span class="str">"type"</span>: <span class="str">"object"</span>,
+                <span class="str">"properties"</span>: {
+                    <span class="str">"city"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"City name"</span>}
+                },
+                <span class="str">"required"</span>: [<span class="str">"city"</span>]
+            }
+        )
+    ]
+
+<span class="cm"># ② Handle when the AI calls a tool</span>
+@app.<span class="fn">call_tool</span>()
+<span class="kw">async def</span> <span class="fn">call_tool</span>(name: str, arguments: dict):
+    <span class="kw">if</span> name == <span class="str">"get_weather"</span>:
+        city = arguments[<span class="str">"city"</span>]
+        <span class="cm"># Call real weather API here</span>
+        <span class="kw">async with</span> httpx.<span class="fn">AsyncClient</span>() <span class="kw">as</span> http:
+            res = <span class="kw">await</span> http.<span class="fn">get</span>(<span class="fn">f</span><span class="str">"https://wttr.in/{city}?format=3"</span>)
+        <span class="kw">return</span> [<span class="fn">TextContent</span>(type=<span class="str">"text"</span>, text=res.text)]
+
+<span class="cm"># ③ Run the server (Claude Desktop connects via stdio)</span>
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    asyncio.<span class="fn">run</span>(<span class="fn">stdio_server</span>(app))</pre>
+        </div>
+
+        <div class="callout tip">
+          <p class="callout-label">✅ REAL-WORLD ADOPTION</p>
+          <p>Early MCP adopters include Block (payments), Apollo (CRM), Zed editor, Replit, Sourcegraph, and Cursor. In
+            December 2025, Anthropic donated MCP to the Linux Foundation's Agentic AI Foundation (AAIF), co-founded with
+            OpenAI and Block. This signals it's becoming an industry standard, not just an Anthropic product.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 10: AGENTS ══ -->
+      <div class="chapter reveal" id="agents">
+        <div class="ch-header">
+          <span class="ch-num">10</span>
+          <h2 class="ch-title">AI Agents & the ReAct Framework</h2>
+          <span class="ch-source">IBM, PromptingGuide.ai, Salesforce, Yao et al. 2023</span>
+        </div>
+
+        <p class="body">An <strong>AI Agent</strong> goes beyond generating text — it can <em>take actions</em>, observe
+          the results, and take further actions in a loop until a goal is complete. Agents use tools (web search, code
+          execution, databases) to interact with the real world.</p>
+
+        <div class="analogy">
+          <p class="analogy-tag">💡 Analogy (from Salesforce)</p>
+          <p>Think of a <strong>detective investigating a case</strong>. A detective doesn't just guess the culprit from
+            prior knowledge. They form a hypothesis (Thought), check the fingerprint database (Action), analyse the
+            results (Observation), then form a new hypothesis. ReAct agents work the same iterative way — never blindly
+            guessing when they can go and look it up.</p>
+        </div>
+
+        <h3 class="sub">The ReAct Framework (Yao et al. 2023)</h3>
+        <p class="body"><strong>ReAct = Reasoning + Acting</strong>. Introduced in "ReAct: Synergizing Reasoning and
+          Acting in Language Models" (2023), ReAct interleaves Chain-of-Thought reasoning steps with tool calls. The
+          agent alternates between <span style="color:var(--yellow)">Thought</span> → <span
+            style="color:var(--green)">Action</span> → <span style="color:var(--blue)">Observation</span> until done.
+        </p>
+
+        <div class="react-trace">
+          <p
+            style="color:var(--text-dim);font-size:.6rem;margin-bottom:1rem;letter-spacing:.1em;text-transform:uppercase">
+            EXAMPLE: "What's the weather in Mumbai and should I carry an umbrella?"</p>
+          <p><span class="rt-thought">Thought:</span> I need real-time weather for Mumbai. I'll use the weather tool.
+          </p>
+          <p><span class="rt-action">Action:</span> get_weather(city="Mumbai")</p>
+          <p><span class="rt-obs">Observation:</span> "Mumbai: 29°C, 80% humidity, Rain expected 3–6 PM"</p>
+          <p><span class="rt-thought">Thought:</span> Rain expected at 3–6 PM. I should check if the user is going out
+            during that window.</p>
+          <p><span class="rt-action">Action:</span> [No tool needed, I have enough info to answer]</p>
+          <p><span class="rt-final">Final Answer:</span> "Yes, carry an umbrella. Mumbai is expecting rain at 3–6 PM
+            today, 29°C with high humidity."</p>
+        </div>
+
+        <div class="callout source">
+          <p class="callout-label">📚 FROM IBM'S REACT AGENT GUIDE</p>
+          <p>The ReAct framework uses prompt engineering to structure the agent's activity in a formal pattern of
+            alternating Thoughts, Actions and Observations. Verbalized Chain-of-Thought reasoning helps the model
+            decompose larger tasks into manageable subtasks. The observation phase creates a self-correcting mechanism —
+            the agent fact-checks intermediate steps before reaching a final conclusion.</p>
+        </div>
+
+        <h3 class="sub">Thought → Action → Observation Loop</h3>
+        <div class="diagram">
+          <p class="diag-title">ReAct Agent Loop</p>
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+            <div class="box box-u">Goal /<br>User Query</div>
+            <div class="arr"><span class="arr-line">→</span></div>
+            <div class="box box-t">💭 Thought<br>(CoT Reasoning)</div>
+            <div class="arr"><span class="arr-line">→</span></div>
+            <div class="box box-s">⚡ Action<br>(Tool Call)</div>
+            <div class="arr"><span class="arr-line">→</span></div>
+            <div class="box box-c">👁️ Observation<br>(Tool Result)</div>
+            <div class="arr"><span class="arr-line">↩</span><span class="arr-lbl">loop until done</span></div>
+          </div>
+        </div>
+
+        <h3 class="sub">Code: Building a Simple Agent</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python · Simple
+              ReAct Agent</span>
+          </div>
+          <pre><span class="kw">import</span> anthropic, json
+
+client = anthropic.<span class="fn">Anthropic</span>()
+
+<span class="cm"># Define tools the agent can use</span>
+tools = [
+    {
+        <span class="str">"name"</span>: <span class="str">"web_search"</span>,
+        <span class="str">"description"</span>: <span class="str">"Search the web for current information"</span>,
+        <span class="str">"input_schema"</span>: {
+            <span class="str">"type"</span>: <span class="str">"object"</span>,
+            <span class="str">"properties"</span>: {<span class="str">"query"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>}},
+            <span class="str">"required"</span>: [<span class="str">"query"</span>]
+        }
+    },
+    {
+        <span class="str">"name"</span>: <span class="str">"calculator"</span>,
+        <span class="str">"description"</span>: <span class="str">"Evaluate a math expression"</span>,
+        <span class="str">"input_schema"</span>: {
+            <span class="str">"type"</span>: <span class="str">"object"</span>,
+            <span class="str">"properties"</span>: {<span class="str">"expression"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>}},
+            <span class="str">"required"</span>: [<span class="str">"expression"</span>]
+        }
+    }
+]
+
+<span class="kw">def</span> <span class="fn">run_agent</span>(user_message: str):
+    messages = [{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: user_message}]
+
+    <span class="kw">while True</span>:
+        response = client.messages.<span class="fn">create</span>(
+            model=<span class="str">"claude-opus-4-5"</span>,
+            max_tokens=<span class="num">1024</span>,
+            tools=tools,
+            messages=messages
+        )
+
+        <span class="cm"># Agent is done thinking — give final answer</span>
+        <span class="kw">if</span> response.stop_reason == <span class="str">"end_turn"</span>:
+            <span class="kw">return</span> response.content[<span class="num">0</span>].text
+
+        <span class="cm"># Agent wants to use a tool</span>
+        <span class="kw">if</span> response.stop_reason == <span class="str">"tool_use"</span>:
+            tool_call = [b <span class="kw">for</span> b <span class="kw">in</span> response.content <span class="kw">if</span> b.type == <span class="str">"tool_use"</span>][<span class="num">0</span>]
+            <span class="fn">print</span>(<span class="fn">f</span><span class="str">"🔧 Using tool: {tool_call.name}({tool_call.input})"</span>)
+
+            <span class="cm"># Your code calls the actual tool</span>
+            result = <span class="fn">execute_tool</span>(tool_call.name, tool_call.input)
+
+            <span class="cm"># Feed result back to agent (it "observes")</span>
+            messages.<span class="fn">append</span>({<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: response.content})
+            messages.<span class="fn">append</span>({
+                <span class="str">"role"</span>: <span class="str">"user"</span>,
+                <span class="str">"content"</span>: [{<span class="str">"type"</span>: <span class="str">"tool_result"</span>,
+                               <span class="str">"tool_use_id"</span>: tool_call.id,
+                               <span class="str">"content"</span>: result}]
+            })</pre>
+        </div>
+
+        <div class="callout warn">
+          <p class="callout-label">⚠️ AGENTS AND SAFETY</p>
+          <p>Agents that take real actions (delete files, send emails, spend money, make API calls) can cause real
+            damage if they misunderstand. Always: (1) Add human-in-the-loop approval for irreversible actions. (2) Start
+            with read-only permissions. (3) Log every action. (4) Set spending/rate limits on external APIs.</p>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ══ CH 11: BUILD ══ -->
+      <div class="chapter reveal" id="build">
+        <div class="ch-header">
+          <span class="ch-num">11</span>
+          <h2 class="ch-title">Build Your First Full AI App</h2>
+          <span class="ch-source">Anthropic Docs, FastAPI</span>
+        </div>
+
+        <p class="body">Let's connect everything. Here's a complete, production-pattern AI chatbot — a Python backend
+          with streaming, a conversation history system, and a streaming frontend.</p>
+
+        <h3 class="sub">Step 1 — Project Setup</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Terminal</span>
+          </div>
+          <pre><span class="cm"># Create project</span>
+mkdir my-ai-app && cd my-ai-app
+python -m venv venv && source venv/bin/activate
+
+<span class="cm"># Install</span>
+pip install fastapi uvicorn anthropic python-dotenv
+
+<span class="cm"># Create .env (NEVER commit this to git!)</span>
+echo <span class="str">"ANTHROPIC_API_KEY=sk-ant-YOUR-KEY-HERE"</span> > .env
+echo <span class="str">".env"</span> >> .gitignore</pre>
+        </div>
+
+        <h3 class="sub">Step 2 — Backend (main.py)</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">Python · main.py
+              — Complete Backend</span>
+          </div>
+          <pre><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">from</span> fastapi.middleware.cors <span class="kw">import</span> CORSMiddleware
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> StreamingResponse
+<span class="kw">from</span> fastapi.staticfiles <span class="kw">import</span> StaticFiles
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">import</span> anthropic, os
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+
+<span class="fn">load_dotenv</span>()
+app = <span class="fn">FastAPI</span>(title=<span class="str">"My AI App"</span>)
+client = anthropic.<span class="fn">Anthropic</span>()
+
+app.<span class="fn">add_middleware</span>(CORSMiddleware,
+    allow_origins=[<span class="str">"*"</span>], allow_methods=[<span class="str">"*"</span>], allow_headers=[<span class="str">"*"</span>])
+
+<span class="kw">class</span> <span class="type">ChatReq</span>(BaseModel):
+    messages: list[dict]   <span class="cm"># [{role, content}]</span>
+    system: str = <span class="str">"You are a helpful assistant."</span>
+
+@app.<span class="fn">post</span>(<span class="str">"/chat"</span>)
+<span class="kw">async def</span> <span class="fn">chat</span>(req: ChatReq):
+    <span class="kw">def</span> <span class="fn">stream_tokens</span>():
+        <span class="kw">with</span> client.messages.<span class="fn">stream</span>(
+            model=<span class="str">"claude-opus-4-5"</span>,
+            max_tokens=<span class="num">2048</span>,
+            system=req.system,
+            messages=req.messages
+        ) <span class="kw">as</span> stream:
+            <span class="kw">for</span> text <span class="kw">in</span> stream.<span class="fn">text_stream</span>():
+                <span class="kw">yield</span> text
+    <span class="kw">return</span> <span class="fn">StreamingResponse</span>(<span class="fn">stream_tokens</span>(), media_type=<span class="str">"text/plain"</span>)
+
+app.<span class="fn">mount</span>(<span class="str">"/"</span>, <span class="fn">StaticFiles</span>(directory=<span class="str">"static"</span>, html=<span class="kw">True</span>))
+<span class="cm"># Run: uvicorn main:app --reload --port 8000</span></pre>
+        </div>
+
+        <h3 class="sub">Step 3 — Frontend (static/index.html)</h3>
+        <div class="code-wrap">
+          <div class="code-top">
+            <div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">JavaScript ·
+              Streaming Chat Frontend</span>
+          </div>
+          <pre><span class="kw">let</span> messages = []    <span class="cm">// Full history kept client-side</span>
+
+<span class="kw">async function</span> <span class="fn">sendMessage</span>(userText) {
+  messages.<span class="fn">push</span>({ role: <span class="str">"user"</span>, content: userText })
+  <span class="fn">renderMessage</span>(<span class="str">"user"</span>, userText)
+
+  <span class="cm">// Stream from backend</span>
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/chat"</span>, {
+    method: <span class="str">"POST"</span>,
+    headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+    body: <span class="fn">JSON.stringify</span>({ messages })
+  })
+
+  <span class="kw">const</span> reader = res.body.<span class="fn">getReader</span>()
+  <span class="kw">const</span> dec = <span class="kw">new</span> <span class="fn">TextDecoder</span>()
+  <span class="kw">let</span> reply = <span class="str">""</span>
+  <span class="kw">const</span> el = <span class="fn">renderMessage</span>(<span class="str">"assistant"</span>, <span class="str">""</span>)  <span class="cm">// Empty bubble</span>
+
+  <span class="kw">while</span> (<span class="kw">true</span>) {
+    <span class="kw">const</span> { done, value } = <span class="kw">await</span> reader.<span class="fn">read</span>()
+    <span class="kw">if</span> (done) <span class="kw">break</span>
+    reply += dec.<span class="fn">decode</span>(value)
+    el.textContent = reply   <span class="cm">// Update live as tokens arrive</span>
+  }
+
+  messages.<span class="fn">push</span>({ role: <span class="str">"assistant"</span>, content: reply })
+}</pre>
+        </div>
+
+        <div class="callout tip">
+          <p class="callout-label">✅ WHAT YOU JUST BUILT</p>
+          <p>This is architecturally identical to ChatGPT. User message → your backend → Claude API → streamed back →
+            rendered live. From here: add PostgreSQL to persist conversations, add auth with JWT, add RAG with your own
+            documents, add MCP tools to give the AI real-world abilities.</p>
+        </div>
+
+        <h3 class="sub">Your Learning Path</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="card-icon">1️⃣</div>
+            <div class="card-title">Done ✓</div>
+            <div class="card-body">Basic chatbot with streaming. Frontend + backend + API all connected.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">2️⃣</div>
+            <div class="card-title">Add Persistence</div>
+            <div class="card-body">PostgreSQL + SQLAlchemy. Save conversations per user. Load history on revisit.</div>
+          </div>
+          <div class="card">
+            <div class="card-icon">3️⃣</div>
+            <div class="card-title">Add RAG</div>
+            <div class="card-body">LangChain + Pinecone. Upload documents, search by meaning, answer from your own data.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon">4️⃣</div>
+            <div class="card-title">Add MCP Tools</div>
+            <div class="card-body">Give your AI the ability to search the web, query databases, and call external APIs.
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub">Best Resources to Go Deeper</h3>
+        <div class="tbl">
+          <table>
+            <tr>
+              <th>Resource</th>
+              <th>What you'll learn</th>
+              <th>Level</th>
+            </tr>
+            <tr>
+              <td>deeplearning.ai — "How Transformer LLMs Work"</td>
+              <td>Transformer internals with Jay Alammar</td>
+              <td>Beginner</td>
+            </tr>
+            <tr>
+              <td>sebastianraschka.com</td>
+              <td>Self-attention from scratch in code</td>
+              <td>Intermediate</td>
+            </tr>
+            <tr>
+              <td>promptingguide.ai</td>
+              <td>Every prompting technique with examples</td>
+              <td>Beginner–Intermediate</td>
+            </tr>
+            <tr>
+              <td>transformer-explainer (poloclub)</td>
+              <td>Visual interactive Transformer demo</td>
+              <td>Beginner</td>
+            </tr>
+            <tr>
+              <td>Anthropic's MCP Docs</td>
+              <td>Build MCP servers, connect to Claude Desktop</td>
+              <td>Intermediate</td>
+            </tr>
+            <tr>
+              <td>Pinecone Learn — RAG</td>
+              <td>Vector databases, embeddings, production RAG</td>
+              <td>Intermediate</td>
+            </tr>
+            <tr>
+              <td>OpenAI Cookbook (GitHub)</td>
+              <td>Practical code examples for every API use case</td>
+              <td>All levels</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <footer>
+    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+      <span>AI Decoded — Built from Anthropic, OpenAI, DeepLearning.AI, Sebastian Raschka, Pinecone, IBM,
+        Wikipedia</span>
+      <span style="color:var(--green)">Made by Sujal Kumar · AIML Engineering Student · Jaipur, India</span>
+    </div>
+    <a href="#" style="color:var(--text-dim);text-decoration:none">↑ Back to top</a>
+  </footer>
+
+  <script>
+    // Progress bar
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement;
+      const pct = (window.scrollY / (h.scrollHeight - window.innerHeight)) * 100;
+      document.getElementById('prog-fill').style.width = pct + '%';
+    }, { passive: true });
+
+    // Reveal
+    const ro = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); ro.unobserve(e.target) } });
+    }, { threshold: .07 });
+    document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+    // Active sidebar + nav
+    const chapters = document.querySelectorAll('.chapter');
+    const so = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          document.querySelectorAll('.sb-item').forEach(l => l.classList.toggle('on', l.getAttribute('href') === '#' + id));
+          document.querySelectorAll('.nav-tab').forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+        }
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+    chapters.forEach(c => so.observe(c));
+  </script>
+</body>
+
+</html>
